@@ -62,7 +62,6 @@
             font-size: 0.95rem; 
             cursor: pointer; 
             margin-top: 4px;
-            transition: background 0.2s;
         }
         button:hover { background-color: #2563eb; }
 
@@ -78,7 +77,7 @@
             letter-spacing: 0.05em;
         }
 
-        /* Horizontal Scroll Timeline Matrix */
+        /* Tight Horizontal Matrix Layout */
         .timeline-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -96,7 +95,7 @@
         .day-column {
             display: flex;
             flex-direction: column;
-            min-width: 48px;
+            min-width: 50px;
             background: white;
             border-right: 1px solid #e2e8f0;
             position: relative;
@@ -124,24 +123,24 @@
         }
 
         .half-slot.booked {
-            background-color: #dbeafe; /* Smooth soft blue background block */
+            background-color: #dbeafe; /* Clean blue bar background */
         }
 
-        /* Superimposed and Perfectly Centered Typography Overlay */
+        /* Completely centered text overlay */
         .guest-overlay {
             position: absolute;
             top: 0;
             bottom: 0;
+            left: 0;
+            right: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.75rem;
             font-weight: 700;
-            color: #1d4ed8; /* Deep rich blue text color */
+            color: #1d4ed8; 
             pointer-events: none;
-            text-align: center;
             white-space: nowrap;
-            overflow: hidden;
             z-index: 10;
         }
     </style>
@@ -173,7 +172,7 @@
 </div>
 
 <script>
-    // Local data storage containing the default demonstration states
+    // Standalone internal memory array with your default demonstration data
     let bookings = [
         { initials: 'SRH', name: 'Cousin Sarah', start: '2026-10-02', end: '2026-10-04' },
         { initials: 'JON', name: 'Uncle John', start: '2026-10-09', end: '2026-10-12' }
@@ -183,7 +182,7 @@
         const container = document.getElementById('calendarMonths');
         container.innerHTML = '';
 
-        // Standard 2-month timeline generation (October & November 2026)
+        // Displays October and November 2026
         const months = [
             { year: 2026, month: 9, name: 'October 2026', days: 31 },
             { year: 2026, month: 10, name: 'November 2026', days: 30 }
@@ -200,103 +199,75 @@
             const grid = document.createElement('div');
             grid.className = 'timeline-grid';
 
-            let dayBlocks = [];
-
-            // Compile day array items 
             for (let d = 1; d <= m.days; d++) {
                 const dateStr = `${m.year}-${String(m.month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 
+                // Crossover logical tracking
                 let amBooked = bookings.find(b => dateStr > b.start && dateStr <= b.end);
                 let pmBooked = bookings.find(b => dateStr >= b.start && dateStr < b.end);
 
-                dayBlocks.push({ d, dateStr, amBooked, pmBooked });
-            }
-
-            // Loop and render structural visual grid nodes
-            dayBlocks.forEach((day, index) => {
                 const dayCol = document.createElement('div');
                 dayCol.className = 'day-column';
 
                 const header = document.createElement('div');
                 header.className = 'date-header';
-                header.innerText = day.d;
+                header.innerText = d;
                 dayCol.appendChild(header);
 
                 const slotsContainer = document.createElement('div');
                 slotsContainer.className = 'slots-container';
 
                 const amSlot = document.createElement('div');
-                amSlot.className = 'half-slot' + (day.amBooked ? ' booked' : '');
+                amSlot.className = 'half-slot' + (amBooked ? ' booked' : '');
                 
                 const pmSlot = document.createElement('div');
-                pmSlot.className = 'half-slot' + (day.pmBooked ? ' booked' : '');
+                pmSlot.className = 'half-slot' + (pmBooked ? ' booked' : '');
 
                 slotsContainer.appendChild(amSlot);
                 slotsContainer.appendChild(pmSlot);
 
-                // Lookahead engine that merges and centers text strings over blocks
-                if (day.pmBooked && (!day.amBooked || day.amBooked.initials !== day.pmBooked.initials)) {
-                    let spanCount = 1;
-                    let lookAheadIndex = index + 1;
-                    
-                    if (day.amBooked && day.amBooked.initials === day.pmBooked.initials) {
-                        spanCount += 0.5;
-                    }
-                    
-                    while (lookAheadIndex < dayBlocks.length) {
-                        let nextDay = dayBlocks[lookAheadIndex];
-                        if (nextDay.amBooked && nextDay.amBooked.initials === day.pmBooked.initials) {
-                            spanCount += 0.5;
-                        } else { break; }
-                        if (nextDay.pmBooked && nextDay.pmBooked.initials === day.pmBooked.initials) {
-                            spanCount += 0.5;
-                        } else { break; }
-                        lookAheadIndex++;
-                    }
-
+                // Safe text overlay execution loop
+                if (amBooked || pmBooked) {
                     const overlay = document.createElement('div');
                     overlay.className = 'guest-overlay';
-                    overlay.innerText = day.pmBooked.initials;
-                    
-                    // Assign strict mathematical styling box widths
-                    overlay.style.width = `${spanCount * 48}px`;
-                    overlay.style.left = `24px`; 
-                    slotsContainer.appendChild(overlay);
-                } else if (day.amBooked && index === 0) {
-                    const overlay = document.createElement('div');
-                    overlay.className = 'guest-overlay';
-                    overlay.innerText = day.amBooked.initials;
-                    overlay.style.width = `24px`;
-                    overlay.style.left = `0px`;
+                    overlay.innerText = amBooked ? amBooked.initials : pmBooked.initials;
                     slotsContainer.appendChild(overlay);
                 }
 
                 dayCol.appendChild(slotsContainer);
                 grid.appendChild(dayCol);
-            });
+            }
 
             wrapper.appendChild(grid);
             mDiv.appendChild(wrapper);
-container.appendChild(mDiv);
-});
-}
-function addReservation() {
-const name = document.getElementById('fullName').value;
-const initials = document.getElementById('initials').value.toUpperCase();
-const start = document.getElementById('checkIn').value;
-const end = document.getElementById('checkOut').value;
-if (!name || !initials || !start || !end) {
-alert('Please fill out all fields.');
-return;
-}
-// Push new reservation structure directly into our standalone memory
-bookings.push({ initials, name, start, end });
-renderCalendar();
-// Wipe local values
-document.getElementById('fullName').value = '';
-document.getElementById('initials').value = '';
-document.getElementById('checkIn').value = '';
-document.getElementById('checkOut').value = '';
-}
-// Paint initial template load states
-renderCalendar();
+            container.appendChild(mDiv);
+        });
+    }
+
+    function addReservation() {
+        const name = document.getElementById('fullName').value;
+        const initials = document.getElementById('initials').value.toUpperCase();
+        const start = document.getElementById('checkIn').value;
+        const end = document.getElementById('checkOut').value;
+
+        if (!name || !initials || !start || !end) {
+            alert('Please fill out all fields.');
+            return;
+        }
+
+        bookings.push({ initials, name, start, end });
+        renderCalendar();
+        
+        // Reset form input values
+        document.getElementById('fullName').value = '';
+        document.getElementById('initials').value = '';
+        document.getElementById('checkIn').value = '';
+        document.getElementById('checkOut').value = '';
+    }
+
+    // Run layout builder on startup
+    renderCalendar();
+</script>
+
+</body>
+</html>
