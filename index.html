@@ -15,9 +15,8 @@ html
             --accent-light: #ebf8ff;
             --available-color: #48bb78;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-primary);
             color: var(--text-main);
             margin: 0;
@@ -26,7 +25,6 @@ html
             flex-direction: column;
             align-items: center;
         }
-
         .container {
             width: 100%;
             max-width: 480px;
@@ -36,110 +34,27 @@ html
             padding: 20px;
             box-sizing: border-box;
         }
-
-        h2 {
-            margin-top: 0;
-            text-align: center;
-            font-size: 1.25rem;
-            color: var(--text-main);
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-
-        button:hover {
-            background-color: #2b6cb0;
-        }
-
-        .calendar-months {
-            margin-top: 24px;
-        }
-
-        .month-container {
-            margin-bottom: 20px;
-        }
-
-        .month-title {
-            font-weight: bold;
-            font-size: 1rem;
-            margin-bottom: 8px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 4px;
-        }
-
-        .timeline-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1px;
-            background-color: var(--border-color);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .day-cell {
-            background: white;
-            padding: 8px;
-            text-align: center;
-            font-size: 0.85rem;
-            min-height: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .day-cell.booked {
-            background-color: var(--accent-light);
-            color: var(--accent-color);
-            font-weight: bold;
-        }
-
-        .day-cell.available {
-            color: #a0aec0;
-        }
-
-        .date-num {
-            font-size: 0.75rem;
-            color: #718096;
-            margin-bottom: 2px;
-        }
+        h2 { margin-top: 0; text-align: center; font-size: 1.25rem; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+        input { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; padding: 10px; background-color: var(--accent-color); color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 8px; }
+        button:hover { background-color: #2b6cb0; }
+        .calendar-months { margin-top: 24px; }
+        .month-container { margin-bottom: 20px; }
+        .month-title { font-weight: bold; font-size: 1rem; margin-bottom: 8px; border-bottom: 2px solid var(--border-color); padding-bottom: 4px; }
+        .timeline-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background-color: var(--border-color); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; }
+        .day-cell { background: white; padding: 8px; text-align: center; font-size: 0.85rem; min-height: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .day-cell.booked { background-color: var(--accent-light); color: var(--accent-color); font-weight: bold; }
+        .day-cell.available { color: #a0aec0; }
+        .date-num { font-size: 0.75rem; color: #718096; margin-bottom: 2px; }
+        .loading { text-align: center; color: #718096; font-style: italic; margin: 20px 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📱 Cabin Scheduler Backend</h2>
+    <h2>📱 Live Cabin Scheduler</h2>
     
     <div class="form-group">
         <label for="fullName">Full Name</label>
@@ -157,17 +72,28 @@ html
         <label for="checkOut">Check-Out Date</label>
         <input type="date" id="checkOut">
     </div>
-    <button onclick="addReservation()">Submit Reservation</button>
+    <button id="submitBtn" onclick="addReservation()">Submit Reservation</button>
 
-    <div class="calendar-months" id="calendarMonths"></div>
+    <div class="calendar-months" id="calendarMonths">
+        <div class="loading">Loading live calendar data...</div>
+    </div>
 </div>
 
 <script>
-    // Hardcoded simulation data matching your previous display state
-    let bookings = [
-        { initials: 'SRH', name: 'Cousin Sarah', start: '2026-10-02', end: '2026-10-04' },
-        { initials: 'JON', name: 'Uncle John', start: '2026-10-09', end: '2026-10-12' }
-    ];
+    // ⚠️ PASTE YOUR COPIED GOOGLE APPS SCRIPT WEB APP URL BETWEEN THE QUOTES BELOW:
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyTlwF6rLs7G19kMm1zmydZLeRKgUtG-NT_1N3PQGBUEqIR9appmSDV7YAekb9GbCvq/exec";
+
+    let bookings = [];
+
+    async function fetchBookings() {
+        try {
+            const response = await fetch(WEB_APP_URL);
+            bookings = await response.json();
+            renderCalendar();
+        } catch (error) {
+            document.getElementById('calendarMonths').innerHTML = '<div class="loading" style="color:red;">Error loading calendar data. Check script URL.</div>';
+        }
+    }
 
     function renderCalendar() {
         const container = document.getElementById('calendarMonths');
@@ -222,7 +148,7 @@ html
         });
     }
 
-    function addReservation() {
+    async function addReservation() {
         const name = document.getElementById('fullName').value;
         const initials = document.getElementById('initials').value.toUpperCase();
         const start = document.getElementById('checkIn').value;
@@ -233,18 +159,42 @@ html
             return;
         }
 
-        bookings.push({ initials, name, start, end });
-        renderCalendar();
-        
-        // Clear input form fields
-        document.getElementById('fullName').value = '';
-        document.getElementById('initials').value = '';
-        document.getElementById('checkIn').value = '';
-        document.getElementById('checkOut').value = '';
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerText = 'Saving to Google Sheet...';
+
+        const payload = { name, initials, start, end };
+
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            // Give Google a brief second to write data, then refresh view
+            setTimeout(async () => {
+                await fetchBookings();
+                btn.disabled = false;
+                btn.innerText = 'Submit Reservation';
+                
+                // Clear fields
+                document.getElementById('fullName').value = '';
+                document.getElementById('initials').value = '';
+                document.getElementById('checkIn').value = '';
+                document.getElementById('checkOut').value = '';
+            }, 1500);
+
+        } catch (error) {
+            alert('Failed to save booking.');
+            btn.disabled = false;
+            btn.innerText = 'Submit Reservation';
+        }
     }
 
-    // Initial load view assembly
-    renderCalendar();
+    // Load spreadsheet data on launch
+    fetchBookings();
 </script>
 
 </body>
