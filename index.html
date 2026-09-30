@@ -63,7 +63,6 @@
             cursor: pointer; 
             margin-top: 4px;
         }
-        button:hover { background-color: #2563eb; }
 
         .calendar-months { margin-top: 24px; }
         .month-container { margin-bottom: 24px; }
@@ -77,7 +76,6 @@
             letter-spacing: 0.05em;
         }
 
-        /* Tight Horizontal Matrix Layout */
         .timeline-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -123,10 +121,9 @@
         }
 
         .half-slot.booked {
-            background-color: #dbeafe; /* Clean blue bar background */
+            background-color: #dbeafe;
         }
 
-        /* Completely centered text overlay */
         .guest-overlay {
             position: absolute;
             top: 0;
@@ -172,20 +169,40 @@
 </div>
 
 <script>
-    // Standalone internal memory array with your default demonstration data
+    // Generates a dynamic default booking for testing using today's date
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0];
+    
+    const futureDate = new Date();
+    futureDate.setDate(today.getDate() + 3);
+    const formattedFuture = futureDate.toISOString().split('T')[0];
+
     let bookings = [
-        { initials: 'SRH', name: 'Cousin Sarah', start: '2026-10-02', end: '2026-10-04' },
-        { initials: 'JON', name: 'Uncle John', start: '2026-10-09', end: '2026-10-12' }
+        { initials: 'DEM', name: 'Demo Guest', start: formattedToday, end: formattedFuture }
     ];
 
     function renderCalendar() {
         const container = document.getElementById('calendarMonths');
         container.innerHTML = '';
 
-        // Displays October and November 2026
+        const current = new Date();
+        
+        // Block 1: Current Month
+        const m1Year = current.getFullYear();
+        const m1Month = current.getMonth();
+        const m1Name = current.toLocaleString('default', { month: 'long', year: 'numeric' });
+        const m1Days = new Date(m1Year, m1Month + 1, 0).getDate();
+
+        // Block 2: Next Month
+        const nextDate = new Date(m1Year, m1Month + 1, 1);
+        const m2Year = nextDate.getFullYear();
+        const m2Month = nextDate.getMonth();
+        const m2Name = nextDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+        const m2Days = new Date(m2Year, m2Month + 1, 0).getDate();
+
         const months = [
-            { year: 2026, month: 9, name: 'October 2026', days: 31 },
-            { year: 2026, month: 10, name: 'November 2026', days: 30 }
+            { year: m1Year, month: m1Month, name: m1Name, days: m1Days },
+            { year: m2Year, month: m2Month, name: m2Name, days: m2Days }
         ];
 
         months.forEach(m => {
@@ -202,7 +219,6 @@
             for (let d = 1; d <= m.days; d++) {
                 const dateStr = `${m.year}-${String(m.month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 
-                // Crossover logical tracking
                 let amBooked = bookings.find(b => dateStr > b.start && dateStr <= b.end);
                 let pmBooked = bookings.find(b => dateStr >= b.start && dateStr < b.end);
 
@@ -226,7 +242,6 @@
                 slotsContainer.appendChild(amSlot);
                 slotsContainer.appendChild(pmSlot);
 
-                // Safe text overlay execution loop
                 if (amBooked || pmBooked) {
                     const overlay = document.createElement('div');
                     overlay.className = 'guest-overlay';
@@ -258,16 +273,13 @@
         bookings.push({ initials, name, start, end });
         renderCalendar();
         
-        // Reset form input values
         document.getElementById('fullName').value = '';
         document.getElementById('initials').value = '';
         document.getElementById('checkIn').value = '';
         document.getElementById('checkOut').value = '';
     }
 
-    // Run layout builder on startup
     renderCalendar();
 </script>
-
 </body>
 </html>
